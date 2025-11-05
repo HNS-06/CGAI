@@ -4,6 +4,7 @@
     right: 20px;
     z-index: 10000;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 280px; /* Reduced from 320px */
 }
 
 .climateguard-confirmation,
@@ -13,56 +14,66 @@
     right: 20px;
     z-index: 10000;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 280px;
 }
 
 .climateguard-card {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-radius: 10px; /* Slightly smaller radius */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     border: 1px solid #e5e7eb;
     overflow: hidden;
-    max-width: 320px;
+    max-width: 280px; /* Reduced size */
     animation: slideInRight 0.3s ease-out;
 }
 
 .climateguard-card.success {
-    border-left: 4px solid #10b981;
+    border-left: 3px solid #10b981;
 }
 
 .climateguard-card.info {
-    border-left: 4px solid #3b82f6;
+    border-left: 3px solid #3b82f6;
 }
 
 .climateguard-header {
     display: flex;
     align-items: center;
-    padding: 16px;
+    padding: 12px 14px; /* Reduced padding */
     background: linear-gradient(135deg, #f8fafc, #f1f5f9);
     border-bottom: 1px solid #e5e7eb;
 }
 
 .climateguard-icon {
-    font-size: 20px;
-    margin-right: 12px;
+    font-size: 18px; /* Slightly smaller */
+    margin-right: 10px;
 }
 
 .climateguard-header h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: 14px; /* Smaller font */
     font-weight: 600;
     color: #1f2937;
     flex: 1;
 }
 
+.calculation-method {
+    font-size: 9px; /* Smaller badge */
+    padding: 2px 6px;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-radius: 6px;
+    margin-left: 6px;
+}
+
 .climateguard-close {
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 18px;
     cursor: pointer;
     color: #6b7280;
     padding: 0;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -75,60 +86,70 @@
 }
 
 .climateguard-content {
-    padding: 16px;
+    padding: 14px; /* Reduced padding */
 }
 
 .climateguard-content p {
-    margin: 0 0 12px 0;
-    font-size: 14px;
+    margin: 0 0 10px 0;
+    font-size: 13px; /* Smaller text */
     color: #6b7280;
     line-height: 1.4;
 }
 
 .carbon-amount {
-    font-size: 24px;
+    font-size: 20px; /* Smaller carbon amount */
     font-weight: 700;
     color: #10b981;
     text-align: center;
-    margin: 12px 0;
+    margin: 10px 0;
 }
 
 .carbon-equivalent {
-    font-size: 12px;
+    font-size: 11px; /* Smaller equivalent text */
     color: #9ca3af;
     text-align: center;
-    margin: 8px 0 0 0 !important;
+    margin: 6px 0 0 0 !important;
+}
+
+.calculation-info {
+    margin-top: 6px;
+    text-align: center;
+}
+
+.calculation-info small {
+    font-size: 10px;
+    color: #9ca3af;
 }
 
 .climateguard-actions {
-    padding: 0 16px 16px 16px;
+    padding: 0 14px 14px 14px; /* Reduced padding */
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .auto-offset-active {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px;
+    gap: 6px;
+    padding: 10px;
     background: rgba(16, 185, 129, 0.1);
     border: 1px solid rgba(16, 185, 129, 0.3);
-    border-radius: 8px;
-    font-size: 13px;
+    border-radius: 6px;
+    font-size: 12px;
     font-weight: 600;
     color: #059669;
 }
 
 .auto-offset-icon {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .climateguard-btn {
-    padding: 12px 16px;
+    padding: 10px 12px; /* Smaller buttons */
     border: none;
-    border-radius: 8px;
-    font-size: 13px;
+    border-radius: 6px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
@@ -157,17 +178,116 @@
 }
 
 .climateguard-footer {
-    padding: 12px 16px;
+    padding: 10px 14px; /* Reduced padding */
     background: #f8fafc;
     border-top: 1px solid #e5e7eb;
     text-align: center;
 }
 
 .climateguard-footer small {
-    font-size: 11px;
+    font-size: 10px; /* Smaller footer */
     color: #9ca3af;
 }
 
+.offset-details {
+    display: flex;
+    justify-content: space-around;
+    margin: 10px 0;
+    font-size: 11px; /* Smaller details */
+    color: #6b7280;
+}
+
+.notification-icon {
+    font-size: 14px;
+    margin-right: 6px;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Compact mode for less intrusive display */
+.climateguard-card.compact {
+    max-width: 240px;
+}
+
+.climateguard-card.compact .climateguard-header {
+    padding: 10px 12px;
+}
+
+.climateguard-card.compact .climateguard-content {
+    padding: 12px;
+}
+
+.climateguard-card.compact .carbon-amount {
+    font-size: 18px;
+    margin: 8px 0;
+}
+
+/* Auto-hide after some time */
+.climateguard-card.auto-hide {
+    animation: slideInRight 0.3s ease-out, slideOutRight 5s ease-in 3s forwards;
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+    .climateguard-card {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+    
+    .climateguard-header {
+        background: linear-gradient(135deg, #4b5563, #374151);
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+    
+    .climateguard-header h3 {
+        color: #f9fafb;
+    }
+    
+    .climateguard-content p {
+        color: #d1d5db;
+    }
+    
+    .climateguard-btn-secondary {
+        background: #4b5563;
+        color: #f9fafb;
+        border-color: #6b7280;
+    }
+    
+    .climateguard-btn-secondary:hover {
+        background: #6b7280;
+    }
+    
+    .climateguard-footer {
+        background: #4b5563;
+        border-color: #6b7280;
+    }
+    
+    .climateguard-footer small {
+        color: #d1d5db;
+    }
+}
 .offset-details {
     display: flex;
     justify-content: space-around;

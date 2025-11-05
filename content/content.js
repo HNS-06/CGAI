@@ -377,47 +377,46 @@ class ClimateGuardContent {
         return defaults.default;
     }
 
-    createCarbonOverlay(carbonAmount, pageData, usedAPI = false) {
-        const overlay = document.createElement('div');
-        overlay.className = 'climateguard-overlay';
-        overlay.innerHTML = `
-            <div class="climateguard-card">
-                <div class="climateguard-header">
-                    <span class="climateguard-icon">🌍</span>
-                    <h3>Carbon Impact Found!</h3>
-                    <span class="calculation-method">${usedAPI ? '🔬 API' : '📊 Estimate'}</span>
-                    <button class="climateguard-close">&times;</button>
-                </div>
-                <div class="climateguard-content">
-                    <p>This purchase generates approximately</p>
-                    <div class="carbon-amount">${carbonAmount.toFixed(1)} kg CO₂</div>
-                    <p class="carbon-equivalent">
-                        Equivalent to ${(carbonAmount / 0.16).toFixed(0)} miles of driving
-                    </p>
-                    <div class="calculation-info">
-                        <small>${usedAPI ? 'Accurate calculation via Climatiq API' : 'Estimated carbon footprint'}</small>
-                    </div>
-                </div>
-                <div class="climateguard-actions">
-                    ${this.isAutoOffsetEnabled ? `
-                        <div class="auto-offset-active">
-                            <span class="auto-offset-icon">⚡</span>
-                            Auto-Offset will be applied at checkout
-                        </div>
-                    ` : `
-                        <button class="climateguard-btn climateguard-btn-primary" id="offsetNowBtn">
-                            🌱 Offset ${carbonAmount.toFixed(1)} kg CO₂
-                        </button>
-                        <button class="climateguard-btn climateguard-btn-secondary" id="enableAutoOffsetBtn">
-                            ⚡ Enable Auto-Offset
-                        </button>
-                    `}
-                </div>
-                <div class="climateguard-footer">
-                    <small>Powered by ClimateGuard AI & Climatiq</small>
+createCarbonOverlay(carbonAmount, pageData, usedAPI = false) {
+    const overlay = document.createElement('div');
+    overlay.className = 'climateguard-overlay';
+    overlay.innerHTML = `
+        <div class="climateguard-card compact">  <!-- Added 'compact' class -->
+            <div class="climateguard-header">
+                <span class="climateguard-icon">🌍</span>
+                <h3>Carbon Impact</h3>
+                <span class="calculation-method">${usedAPI ? '🔬 API' : '📊 Est'}</span>
+                <button class="climateguard-close">&times;</button>
+            </div>
+            <div class="climateguard-content">
+                <div class="carbon-amount">${carbonAmount.toFixed(1)} kg CO₂</div>
+                <p class="carbon-equivalent">
+                    ${(carbonAmount / 0.16).toFixed(0)} miles driven
+                </p>
+                <div class="calculation-info">
+                    <small>${usedAPI ? 'Climatiq API' : 'Estimated'}</small>
                 </div>
             </div>
-        `;
+            <div class="climateguard-actions">
+                ${this.isAutoOffsetEnabled ? `
+                    <div class="auto-offset-active">
+                        <span class="auto-offset-icon">⚡</span>
+                        Auto-Offset Active
+                    </div>
+                ` : `
+                    <button class="climateguard-btn climateguard-btn-primary" id="offsetNowBtn">
+                        🌱 Offset ${carbonAmount.toFixed(1)} kg
+                    </button>
+                    <button class="climateguard-btn climateguard-btn-secondary" id="enableAutoOffsetBtn">
+                        ⚡ Enable Auto
+                    </button>
+                `}
+            </div>
+            <div class="climateguard-footer">
+                <small>ClimateGuard AI</small>
+            </div>
+        </div>
+    `;
         
         // Add event listeners
         const closeBtn = overlay.querySelector('.climateguard-close');

@@ -330,4 +330,4 @@ new ClimateGuardBackground();
 // Listen for extension installation
 chrome.runtime.onInstalled.addListener(() => {
     console.log('ClimateGuard AI installed with API integration');
-});
+}); 
