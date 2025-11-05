@@ -52,6 +52,7 @@ class ClimateGuardBackground {
                 case 'manualOffset':
                 case 'autoOffset':
                     this.handleOffset(request);
+                    sendResponse({ success: true });
                     break;
                     
                 case 'getRecentOffsets':
@@ -60,6 +61,7 @@ class ClimateGuardBackground {
                     
                 case 'setAutoOffset':
                     this.setAutoOffset(request.enabled);
+                    sendResponse({ success: true });
                     break;
                     
                 case 'getStats':
@@ -67,16 +69,26 @@ class ClimateGuardBackground {
                     break;
                     
                 case 'calculateCarbon':
-                    // Handle API carbon calculation
+                    // Handle API carbon calculation ASYNCHRONOUSLY
                     this.calculateCarbonWithAPI(request.pageData)
                         .then(carbonAmount => {
-                            sendResponse({ carbonAmount });
+                            sendResponse({ 
+                                success: true, 
+                                carbonAmount: carbonAmount 
+                            });
                         })
                         .catch(error => {
                             console.error('API calculation failed:', error);
-                            sendResponse({ carbonAmount: null });
+                            sendResponse({ 
+                                success: false, 
+                                error: error.message,
+                                carbonAmount: null 
+                            });
                         });
-                    return true; // Keep message channel open for async
+                    return true; // IMPORTANT: Keep message channel open for async
+                    
+                default:
+                    sendResponse({ success: false, error: 'Unknown action' });
             }
         });
     }
@@ -85,10 +97,11 @@ class ClimateGuardBackground {
         try {
             console.log('Calculating carbon with Climatiq API for:', pageData);
             
-            const product = pageData.products && pageData.products.length > 0 
-                ? pageData.products[0] 
-                : 'General product';
-                
+            if (!pageData || !pageData.products || pageData.products.length === 0) {
+                throw new Error('No products found for carbon calculation');
+            }
+            
+            const product = pageData.products[0];
             const price = this.extractPrice(pageData);
             const category = this.detectCategory(product);
             
@@ -100,7 +113,8 @@ class ClimateGuardBackground {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${this.climatiqApiKey}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'ClimateGuard-AI/1.0'
                 },
                 body: JSON.stringify({
                     emission_factor: emissionFactor,
@@ -111,18 +125,27 @@ class ClimateGuardBackground {
                 })
             });
 
+            console.log('API response status:', response.status);
+            
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Climatiq API error:', response.status, errorText);
-                throw new Error(`API error: ${response.status} - ${errorText}`);
+                let errorText = 'Unknown error';
+                try {
+                    errorText = await response.text();
+                } catch (e) {
+                    errorText = `HTTP ${response.status}`;
+                }
+                throw new Error(`Climatiq API error: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
-            console.log('Climatiq API response:', data);
+            console.log('Climatiq API response data:', data);
+            
+            if (!data || typeof data.co2e !== 'number') {
+                throw new Error('Invalid API response format');
+            }
             
             // Convert to kg CO₂e
-            const co2e = data.co2e || 0;
-            const co2eKg = co2e * 1000; // Convert to kg
+            const co2eKg = data.co2e * 1000; // Convert to kg
             
             console.log('Calculated carbon:', co2eKg, 'kg');
             
@@ -144,7 +167,7 @@ class ClimateGuardBackground {
             }
         }
         
-        // Fallback price estimates based on site and product type
+        // Fallback price estimates based on site
         const siteDefaults = {
             'amazon': 45,
             'ebay': 35,
@@ -157,10 +180,12 @@ class ClimateGuardBackground {
             'default': 25
         };
         
-        for (const [site, price] of Object.entries(siteDefaults)) {
-            if (pageData.siteName && pageData.siteName.includes(site)) {
-                console.log('Using default price for', site, ':', price);
-                return price;
+        if (pageData.siteName) {
+            for (const [site, price] of Object.entries(siteDefaults)) {
+                if (pageData.siteName.includes(site)) {
+                    console.log('Using default price for', site, ':', price);
+                    return price;
+                }
             }
         }
         
@@ -174,37 +199,23 @@ class ClimateGuardBackground {
         const text = productText.toLowerCase();
         
         // Electronics
-        if (text.match(/(iphone|samsung|phone|smartphone|mobile|android|pixel)/)) return 'electronics';
-        if (text.match(/(laptop|macbook|computer|notebook|desktop|mac pro)/)) return 'electronics';
-        if (text.match(/(tablet|ipad|surface|kindle)/)) return 'electronics';
-        if (text.match(/(tv|television|monitor|display|screen)/)) return 'electronics';
-        if (text.match(/(camera|dslr|mirrorless|canon|nikon|sony)/)) return 'electronics';
-        if (text.match(/(headphone|earbud|airpod|speaker|audio)/)) return 'electronics';
-        if (text.match(/(watch|smartwatch|apple watch|fitbit)/)) return 'electronics';
+        if (text.match(/(iphone|samsung|phone|smartphone|mobile|android)/)) return 'electronics';
+        if (text.match(/(laptop|macbook|computer|notebook)/)) return 'electronics';
+        if (text.match(/(tablet|ipad|surface)/)) return 'electronics';
+        if (text.match(/(tv|television|monitor)/)) return 'electronics';
+        if (text.match(/(camera|dslr|mirrorless)/)) return 'electronics';
         
         // Clothing
-        if (text.match(/(shirt|tshirt|t-shirt|blouse|top)/)) return 'clothing';
-        if (text.match(/(jeans|pants|trousers|leggings)/)) return 'clothing';
-        if (text.match(/(shoes|sneakers|footwear|boots|sandals|heels)/)) return 'clothing';
-        if (text.match(/(jacket|coat|hoodie|sweater|sweatshirt)/)) return 'clothing';
-        if (text.match(/(dress|skirt|shorts|jumper)/)) return 'clothing';
-        if (text.match(/(underwear|sock|bra|lingerie)/)) return 'clothing';
+        if (text.match(/(shirt|tshirt|t-shirt)/)) return 'clothing';
+        if (text.match(/(jeans|pants|trousers)/)) return 'clothing';
+        if (text.match(/(shoes|sneakers|footwear)/)) return 'clothing';
+        if (text.match(/(jacket|coat|hoodie)/)) return 'clothing';
         
-        // Home & Furniture
-        if (text.match(/(chair|sofa|couch|recliner|stool)/)) return 'furniture';
-        if (text.match(/(table|desk|dining|coffee)/)) return 'furniture';
-        if (text.match(/(bed|mattress|headboard)/)) return 'furniture';
-        if (text.match(/(wardrobe|cabinet|shelf|bookcase)/)) return 'furniture';
-        if (text.match(/(lamp|lighting|chandelier)/)) return 'furniture';
+        // Furniture
+        if (text.match(/(chair|sofa|couch)/)) return 'furniture';
+        if (text.match(/(table|desk)/)) return 'furniture';
+        if (text.match(/(bed|mattress)/)) return 'furniture';
         
-        // Other categories
-        if (text.match(/(book|novel|magazine|textbook)/)) return 'media';
-        if (text.match(/(game|console|playstation|xbox|nintendo|switch)/)) return 'entertainment';
-        if (text.match(/(food|grocery|snack|beverage|drink|coffee|tea)/)) return 'food';
-        if (text.match(/(toy|lego|doll|action figure|game)/)) return 'toys';
-        if (text.match(/(cosmetic|makeup|skincare|perfume|shampoo)/)) return 'personal_care';
-        
-        console.log('Using general category for:', productText);
         return 'general';
     }
 
@@ -215,32 +226,12 @@ class ClimateGuardBackground {
                 name: "Electronics"
             },
             'clothing': {
-                id: "consumer_goods-type_textiles",
+                id: "consumer_goods-type_textiles", 
                 name: "Clothing and textiles"
             },
             'furniture': {
-                id: "consumer_goods-type_wooden_furniture", 
+                id: "consumer_goods-type_wooden_furniture",
                 name: "Wooden furniture"
-            },
-            'food': {
-                id: "consumer_goods-type_food",
-                name: "Food products"
-            },
-            'media': {
-                id: "consumer_goods-type_other",
-                name: "Other consumer goods"
-            },
-            'entertainment': {
-                id: "consumer_goods-type_other",
-                name: "Other consumer goods"
-            },
-            'toys': {
-                id: "consumer_goods-type_other",
-                name: "Other consumer goods"
-            },
-            'personal_care': {
-                id: "consumer_goods-type_other", 
-                name: "Other consumer goods"
             },
             'general': {
                 id: "consumer_goods-type_other",
@@ -248,9 +239,7 @@ class ClimateGuardBackground {
             }
         };
         
-        const factor = emissionFactors[category] || emissionFactors.general;
-        console.log('Using emission factor:', factor, 'for category:', category);
-        return factor;
+        return emissionFactors[category] || emissionFactors.general;
     }
 
     handleOffset(offsetData) {
@@ -265,7 +254,6 @@ class ClimateGuardBackground {
             usedAPI: offsetData.usedAPI || false
         };
         
-        // Add to offsets array
         this.offsets.unshift(offset);
         
         // Update stats
@@ -274,23 +262,17 @@ class ClimateGuardBackground {
         this.stats.offsetPurchases += 1;
         this.stats.moneyDonated += offset.carbonAmount * 0.1;
         
-        // Keep only recent offsets (last 100)
+        // Keep only recent offsets
         if (this.offsets.length > 100) {
             this.offsets = this.offsets.slice(0, 100);
         }
         
         this.saveData();
-        
-        // Notify all popups and content scripts
         this.broadcastOffset(offset);
         this.broadcastStatsUpdate();
-        
-        // Log for debugging
-        console.log('Offset processed:', offset);
     }
 
     broadcastOffset(offset) {
-        // Notify all tabs
         chrome.tabs.query({}, (tabs) => {
             tabs.forEach(tab => {
                 chrome.tabs.sendMessage(tab.id, {
@@ -302,7 +284,6 @@ class ClimateGuardBackground {
             });
         });
         
-        // Notify all popups
         chrome.runtime.sendMessage({
             action: 'offsetCompleted',
             ...offset
@@ -331,7 +312,6 @@ class ClimateGuardBackground {
     }
 
     setupOffsetsCleanup() {
-        // Clean up old offsets every hour
         setInterval(() => {
             this.cleanupOldOffsets();
         }, 60 * 60 * 1000);
