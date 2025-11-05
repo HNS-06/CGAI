@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClimateGuard AI</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="climate-guard">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">🌍 ClimateGuard</h1>
+                <button id="themeToggle" class="theme-toggle">🌙</button>
+            </div>
+        </header>
+
+        <!-- Main Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🌱</div>
+                <div class="stat-value" id="carbonSaved">0.0</div>
+                <div class="stat-label">kg CO₂ Saved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🌳</div>
+                <div class="stat-value" id="treesPlanted">0.0</div>
+                <div class="stat-label">Trees Planted</div>
+            </div>
+            <div class="stat-card">
+                <div class="carbon-visual">
+                    <div id="animatedTree" class="animated-tree">🌳</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="settings-section">
+            <label class="toggle-switch">
+                <input type="checkbox" id="autoOffset">
+                <span class="slider"></span>
+                <span class="toggle-label">Auto-Offset Purchases</span>
+            </label>
+        </div>
+
+        <!-- Additional Stats -->
+        <div class="secondary-stats">
+            <div class="secondary-stat">
+                <span class="secondary-value" id="offsetPurchases">0</span>
+                <span class="secondary-label">Offset Purchases</span>
+            </div>
+            <div class="secondary-stat">
+                <span class="secondary-value" id="moneyDonated">$0.00</span>
+                <span class="secondary-label">Donated</span>
+            </div>
+        </div>
+
+        <!-- Live Carbon Section -->
+        <div class="live-section">
+            <div id="liveCarbonSection" class="live-carbon-section">
+                <!-- Dynamic content will be injected here -->
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button id="scanPage" class="btn btn-primary">
+                🔍 Scan This Page
+            </button>
+            <button id="viewHistory" class="btn btn-secondary">
+                📊 View History
+            </button>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="activities-section">
+            <h3 class="section-title">Recent Offsets</h3>
+            <div id="activityList" class="activity-list">
+                <!-- Activities will be injected here -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-text">Making every purchase climate positive 🌍</p>
+        </footer>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
