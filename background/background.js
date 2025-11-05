@@ -31,7 +31,7 @@ class ClimateGuardBackground {
                 if (result.recentOffsets) {
                     this.offsets = result.recentOffsets;
                 }
-                this.autoOffsetEnabled = result.autoOffsetEnabled || false;
+                this.autoOffsetEnabled = result.autoOffsetEnabled || false; // FIXED: Removed backtick
                 resolve();
             });
         });
@@ -330,4 +330,4 @@ new ClimateGuardBackground();
 // Listen for extension installation
 chrome.runtime.onInstalled.addListener(() => {
     console.log('ClimateGuard AI installed with API integration');
-}); 
+});
